@@ -56,6 +56,7 @@ class WeatherForecast(Base):
 
 
 class Database:
+    """Singleton database access class used to share one engine and session factory."""
     _instance: "Database | None" = None
 
     def __new__(cls, database_url: str | None = None):

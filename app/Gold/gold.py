@@ -6,6 +6,7 @@ import pandas as pd
 
 
 def calculer_risque(ligne):
+    """Compute a basic risk score based on temperature, rainfall, and wind severity."""
     score = 0
 
     if ligne["Temp_Max"] > 35:

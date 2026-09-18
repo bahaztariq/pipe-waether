@@ -1,4 +1,5 @@
 services:
+  # Core application service
   app:
     build: .
     container_name: pipe-weather

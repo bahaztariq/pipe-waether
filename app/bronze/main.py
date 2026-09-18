@@ -25,7 +25,7 @@ CITIES = {
 
 
 def extract():
-    """Charge les donnees des villes marocaines depuis Open-Meteo."""
+    """Extract daily weather forecast data for all cities in the Moroccan dataset."""
     frames = []
 
     for city, coordinates in CITIES.items():

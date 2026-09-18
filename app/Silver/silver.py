@@ -7,6 +7,7 @@ import pandas as pd
 
 
 def transform(bronze_dir="bronze", output_file="silver/meteo_maroc.csv"):
+    """Clean and standardize the Bronze weather data into a Silver output dataset."""
     bronze_runs = sorted(
         [path for path in Path(bronze_dir).iterdir() if (path / "cities.csv").exists()]
     )

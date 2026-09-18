@@ -6,6 +6,10 @@ Pipe Weather is a data engineering project for collecting, transforming, and ana
 
 The project answers a practical business question: which cities and which periods are likely to face the highest meteorological risk in the coming days?
 
+## Current project status
+
+This repository is currently structured around the main ETL stages: Bronze extraction, Silver cleaning, and Gold feature engineering. The codebase is organized to support weather forecasting, risk scoring, and future PostgreSQL and Airflow orchestration.
+
 It is built around a simple data pipeline that:
 
 - extracts weather data from Open-Meteo;
