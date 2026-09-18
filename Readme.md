@@ -1,45 +1,47 @@
 # Pipe Weather
 
-This project is a weather data pipeline designed to collect, clean, and transform meteorological data for multiple cities. It follows a classic ETL architecture composed of three layers:
+Pipe Weather is a data engineering project for collecting, transforming, and analyzing weather forecasts for Moroccan cities. The solution follows a Bronze → Silver → Gold pipeline and is designed to help identify risky meteorological conditions for operational planning.
 
-- Bronze: raw weather data extracted from an external API
-- Silver: cleaned and structured data prepared for analysis
-- Gold: enriched dataset with computed features and risk indicators
+## Project goal
 
-The pipeline retrieves daily weather forecasts from the Open-Meteo API, stores the raw responses, transforms them into a tabular format, and builds analytics such as temperature categories, precipitation levels, and weather risk scoring.
+The project answers a practical business question: which cities and which periods are likely to face the highest meteorological risk in the coming days?
 
-## Project Overview
+It is built around a simple data pipeline that:
 
-The main goal of this project is to demonstrate how to build an end-to-end data pipeline that turns external weather data into useful analytical outputs. It combines Python, Pandas, Airflow, and Docker to automate the full data flow from collection to processing.
+- extracts weather data from Open-Meteo;
+- stores raw responses in the Bronze layer;
+- cleans and standardizes the data in Silver;
+- creates risk features and business-ready indicators in Gold;
+- orchestrates the workflow with Airflow;
+- can be deployed locally with Docker Compose.
 
-## Features
+## Main features
 
-- Extract weather data for multiple cities
-- Save raw API responses in a Bronze layer
-- Clean and normalize the data in the Silver layer
-- Generate analytical features and risk metrics in the Gold layer
-- Orchestrate the workflow using Apache Airflow
-- Deploy the stack locally with Docker Compose
+- API-based weather extraction for multiple cities
+- Bronze raw storage for unchanged source data
+- Silver data cleaning and standardization
+- Gold feature engineering with temperature, precipitation, wind, and risk categories
+- Risk score calculation for operational decision support
+- Docker setup for local orchestration and services
 
-## Tech Stack
+## Tech stack
 
 - Python
 - Pandas
+- SQLAlchemy
 - PostgreSQL
 - Apache Airflow
 - Streamlit
 - Docker
 
-## Architecture
+## Pipeline architecture
 
-The project follows a simple data pipeline structure:
+1. Extract forecast data from Open-Meteo
+2. Save the raw responses in Bronze
+3. Clean and structure the raw data in Silver
+4. Build analytical features and weather-risk scores in Gold
+5. Prepare the data for SQL analysis and visualization
 
-1. Extract weather data from Open-Meteo
-2. Store raw JSON files in the Bronze layer
-3. Transform and clean the data into a structured dataset
-4. Compute derived features and risk scores
-5. Export the final results for analysis or visualization
+## Business value
 
-## Purpose
-
-This project is useful for learning and practicing data engineering concepts such as ETL pipelines, data orchestration, and layered data processing in a real-world scenario.
+The project helps operational teams compare weather conditions between cities, detect high-risk windows, and anticipate disruptions that may affect logistics, deliveries, and field operations.
