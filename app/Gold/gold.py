@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from app.db.db import database
+
 
 def calculer_risque(ligne):
     """Compute a basic risk score based on temperature, rainfall, and wind severity."""
@@ -27,7 +29,11 @@ def calculer_risque(ligne):
     return score
 
 
-def load(input_file="silver/meteo_maroc.csv", output_file="Gold/meteo_maroc_features.csv"):
+def load(
+    input_file="silver/meteo_maroc.csv",
+    output_file="Gold/meteo_maroc_features.csv",
+    load_to_database=True,
+):
     df = pd.read_csv(input_file)
     df["Date"] = pd.to_datetime(df["Date"])
     df["date"] = df["Date"].dt.date
@@ -54,6 +60,12 @@ def load(input_file="silver/meteo_maroc.csv", output_file="Gold/meteo_maroc_feat
     Path(output_file).parent.mkdir(exist_ok=True)
     df.to_csv(output_file, index=False)
     print("Fichier Gold enregistre.")
+
+    if load_to_database:
+        database.create_tables()
+        rows_loaded = database.load_gold_dataframe(df)
+        print(f"{rows_loaded} lignes Gold chargees dans PostgreSQL.")
+
     return df
 
 
