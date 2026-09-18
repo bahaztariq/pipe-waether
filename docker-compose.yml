@@ -1,0 +1,66 @@
+services:
+  app:
+    build: .
+    container_name: pipe-weather
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    command: python3 -m app.main
+  db:
+    image: postgres:17
+    container_name: pipe-weather-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pipe-weather-pgadmin
+    depends_on:
+      - db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+  streamlit:
+    build: .
+    container_name: pipe-weather-streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    command: streamlit run app/streamlit_app.py
+  airflow:
+    image: apache/airflow:latest
+    container_name: pipe-weather-airflow
+    depends_on:
+      - db
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
+      PROJECT_DIR: /opt/airflow/project
+      BRONZE_DIR: /opt/airflow/project/bronze
+      CITIES_FILE: /opt/airflow/project/bronze/cities.csv
+      OPEN_METEO_URL: https://api.open-meteo.com/v1/forecast
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - .:/opt/airflow/project
+    command: >
+      bash -c "airflow db migrate &&
+               (airflow users create --username ${AIRFLOW_ADMIN_USERNAME} --password ${AIRFLOW_ADMIN_PASSWORD} --firstname Admin --lastname User --role Admin --email ${AIRFLOW_ADMIN_EMAIL} || true)"
+  
+volumes:
+  db_data:
+  pgadmin_data:
