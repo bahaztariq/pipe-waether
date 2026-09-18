@@ -37,7 +37,7 @@ services:
       - "8501:8501"
     volumes:
       - .:/app
-    command: streamlit run app/streamlit_app.py
+    command: streamlit run app/streamlit/streamlit_app.py
   airflow:
     image: apache/airflow:latest
     container_name: pipe-weather-airflow
@@ -53,7 +53,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./dags:/opt/airflow/dags
+      - ./app/dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - .:/opt/airflow/project
