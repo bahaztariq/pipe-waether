@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 .env
 .vscode/
+logs/
+app/bronze/output.csv
+app/Silver/meteo_maroc.csv
+app/Gold/meteo_maroc_features.csv
