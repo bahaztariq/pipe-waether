@@ -6,6 +6,10 @@ import pandas as pd
 
 from app.db.db import database
 
+BASE_DIR = Path(__file__).resolve().parents[2]
+INPUT_FILE = BASE_DIR / "app" / "Silver" / "meteo_maroc.csv"
+OUTPUT_FILE = BASE_DIR / "app" / "Gold" / "meteo_maroc_features.csv"
+
 
 def calculer_risque(ligne):
     """Compute a basic risk score based on temperature, rainfall, and wind severity."""
@@ -29,12 +33,8 @@ def calculer_risque(ligne):
     return score
 
 
-def load(
-    input_file="silver/meteo_maroc.csv",
-    output_file="Gold/meteo_maroc_features.csv",
-    load_to_database=True,
-):
-    df = pd.read_csv(input_file)
+def load():
+    df = pd.read_csv(INPUT_FILE)
     df["Date"] = pd.to_datetime(df["Date"])
     df["date"] = df["Date"].dt.date
     df["Temperature_Moyenne"] = (df["Temp_Max"] + df["Temp_Min"]) / 2
@@ -57,8 +57,8 @@ def load(
     )
     df["risk_score"] = df.apply(calculer_risque, axis=1)
 
-    Path(output_file).parent.mkdir(exist_ok=True)
-    df.to_csv(output_file, index=False)
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(OUTPUT_FILE, index=False)
     print("Fichier Gold enregistre.")
 
     if load_to_database:
