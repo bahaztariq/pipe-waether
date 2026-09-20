@@ -5,11 +5,27 @@ from pathlib import Path
 
 import pandas as pd
 
+BASE_DIR = Path(__file__).resolve().parents[2]
+BRONZE_DIR = BASE_DIR / "app" / "bronze"
+OUTPUT_FILE = BASE_DIR / "app" / "Silver" / "meteo_maroc.csv"
 
-def transform(bronze_dir="bronze", output_file="silver/meteo_maroc.csv"):
+
+def transform():
     """Clean and standardize the Bronze weather data into a Silver output dataset."""
+    output_csv = BRONZE_DIR / "output.csv"
+    if output_csv.exists():
+        df = pd.read_csv(output_csv)
+        df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+        df["Precipitation"] = df["Precipitation"].fillna(0)
+        df = df.dropna(subset=["Date", "Temp_Max", "Temp_Min"])
+        df = df.drop_duplicates()
+        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(OUTPUT_FILE, index=False)
+        print("Fichier Silver enregistre.")
+        return df
+
     bronze_runs = sorted(
-        [path for path in Path(bronze_dir).iterdir() if (path / "cities.csv").exists()]
+        [path for path in BRONZE_DIR.iterdir() if (path / "cities.csv").exists()]
     )
     bronze_run = bronze_runs[-1]
     cities = pd.read_csv(bronze_run / "cities.csv")
@@ -44,8 +60,8 @@ def transform(bronze_dir="bronze", output_file="silver/meteo_maroc.csv"):
     df = df.dropna(subset=["Date", "Temp_Max", "Temp_Min"])
     df = df.drop_duplicates()
 
-    Path(output_file).parent.mkdir(exist_ok=True)
-    df.to_csv(output_file, index=False)
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(OUTPUT_FILE, index=False)
     print("Fichier Silver enregistre.")
     return df
 
