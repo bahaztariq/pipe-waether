@@ -49,3 +49,21 @@ It is built around a simple data pipeline that:
 ## Business value
 
 The project helps operational teams compare weather conditions between cities, detect high-risk windows, and anticipate disruptions that may affect logistics, deliveries, and field operations.
+
+## Weather risk score
+
+The Gold layer calculates a score from 0 to 100 for each city and forecast date:
+
+- maximum temperature above 35 C: 40 points; above 30 C: 20 points;
+- minimum temperature below 5 C: 30 points; below 10 C: 15 points;
+- precipitation above 10 mm: 30 points; above 0 mm: 15 points.
+
+The score prioritizes conditions that can disrupt delivery operations. The resulting levels are `Faible` below 25, `Modere` from 25, `Eleve` from 50, and `Extreme` from 75.
+
+## Local services
+
+- Airflow: http://localhost:8080
+- Streamlit: http://localhost:8501
+- pgAdmin: http://localhost:5050
+
+The Airflow DAG runs Bronze extraction, Silver cleaning, and Gold feature engineering daily. Gold forecasts are upserted using the city and forecast date, so refreshing a forecast does not create duplicate rows.
