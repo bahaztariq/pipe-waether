@@ -16,7 +16,7 @@ Params = {
 }
 BASE_DIR = Path(__file__).resolve().parents[2]
 CITY_FILE = BASE_DIR / "app" / "bronze" / "cities.csv"
-OUTPUT_FILE = BASE_DIR / "app" / "bronze" / "output.json"
+OUTPUT_FILE = BASE_DIR / "app" / "bronze" / "output.csv"
 city_coordinates = pd.read_csv(CITY_FILE, encoding="utf-8")
 CITIES = {
     row.city: {"latitude": row.lat, "longitude": row.lng}
@@ -66,7 +66,7 @@ def extract():
         "Weather_Code",
     ]:
         df[column] = pd.to_numeric(df[column], errors="coerce")
-    df.to_json(OUTPUT_FILE, orient='records', indent=4)
+    df.to_csv(OUTPUT_FILE, index=False)
 
     return df.dropna(subset=["Date", "Temp_Max", "Temp_Min"]).drop_duplicates()
 
