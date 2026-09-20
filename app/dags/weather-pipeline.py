@@ -6,7 +6,7 @@ from pathlib import Path
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(os.getenv('PROJECT_DIR', '/opt/airflow/project'))
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.bronze.main import extract as extract_weather
@@ -28,33 +28,20 @@ airflow_dag = DAG(
     'weather_pipeline',
     default_args=default_args,
     description='A simple weather data pipeline',
-    schedule_interval=timedelta(days=1),
+    schedule=timedelta(days=1),
 )
 
 
 def run_bronze():
-    return extract_weather(
-        output_dir=os.getenv('BRONZE_DIR', str(PROJECT_ROOT / 'app' / 'bronze')),
-        cities_file=os.getenv('CITIES_FILE', str(PROJECT_ROOT / 'app' / 'bronze' / 'cities.csv')),
-        weather_url=os.getenv('OPEN_METEO_URL', 'https://api.open-meteo.com/v1/forecast'),
-        forecast_days=int(os.getenv('FORECAST_DAYS', '7')),
-        timeout=int(os.getenv('REQUEST_TIMEOUT_SECONDS', '30')),
-        retries=int(os.getenv('REQUEST_RETRIES', '3')),
-    )
+    return extract_weather()
 
 
 def run_transform():
-    return transform(
-        bronze_dir=os.getenv('BRONZE_DIR', str(PROJECT_ROOT / 'app' / 'bronze')),
-        output_file=os.getenv('SILVER_FILE', str(PROJECT_ROOT / 'app' / 'Silver' / 'meteo_maroc.csv')),
-    )
+    return transform()
 
 
 def run_load():
-    return load(
-        input_file=os.getenv('SILVER_FILE', str(PROJECT_ROOT / 'app' / 'Silver' / 'meteo_maroc.csv')),
-        output_file=os.getenv('GOLD_FILE', str(PROJECT_ROOT / 'app' / 'Gold' / 'meteo_maroc_features.csv')),
-    )
+    return load()
 
 
 extract_task = PythonOperator(
