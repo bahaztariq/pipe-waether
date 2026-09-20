@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 
 PROJECT_ROOT = Path(os.getenv('PROJECT_DIR', '/opt/airflow/project'))
 sys.path.insert(0, str(PROJECT_ROOT))
