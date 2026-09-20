@@ -15,6 +15,10 @@ def transform():
     output_csv = BRONZE_DIR / "output.csv"
     if output_csv.exists():
         df = pd.read_csv(output_csv)
+        cities = pd.read_csv(BRONZE_DIR / "cities.csv").rename(
+            columns={"city": "Ville", "lat": "Latitude", "lng": "Longitude"}
+        )
+        df = df.merge(cities[["Ville", "Latitude", "Longitude"]], on="Ville", how="left")
         df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
         df["Precipitation"] = df["Precipitation"].fillna(0)
         df = df.dropna(subset=["Date", "Temp_Max", "Temp_Min"])

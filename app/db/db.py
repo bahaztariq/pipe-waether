@@ -2,7 +2,8 @@ import os
 from datetime import date
 
 import pandas as pd
-from sqlalchemy import Float, String, Date, ForeignKey, create_engine, select, text
+from sqlalchemy import Date, Float, ForeignKey, String, UniqueConstraint, create_engine, select, text
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session, sessionmaker
 
 try:
@@ -39,6 +40,9 @@ class City(Base):
 
 class WeatherForecast(Base):
     __tablename__ = "weather_forecasts"
+    __table_args__ = (
+        UniqueConstraint("city_id", "forecast_date", name="uq_weather_city_date"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
     city_id: Mapped[int] = mapped_column(ForeignKey("cities.id"), nullable=False, index=True)
@@ -87,8 +91,8 @@ class Database:
     def get_session(self) -> Session:
         return self.SessionLocal()
 
-    def load_gold_dataframe(self, df: pd.DataFrame, if_exists: str = "append") -> int:
-        """Load the Gold dataframe into PostgreSQL using pandas.to_sql."""
+    def load_gold_dataframe(self, df: pd.DataFrame) -> int:
+        """Upsert Gold forecasts so repeated runs refresh existing dates."""
         if df.empty:
             return 0
 
@@ -143,8 +147,20 @@ class Database:
             "risk_level",
         ]]
 
-        weather_df.to_sql("weather_forecasts", self.engine, if_exists=if_exists, index=False)
-        return len(weather_df)
+        records = weather_df.to_dict(orient="records")
+        statement = insert(WeatherForecast.__table__).values(records)
+        update_columns = {
+            column.name: getattr(statement.excluded, column.name)
+            for column in WeatherForecast.__table__.columns
+            if column.name not in {"id", "city_id", "forecast_date"}
+        }
+        statement = statement.on_conflict_do_update(
+            constraint="uq_weather_city_date",
+            set_=update_columns,
+        )
+        with self.engine.begin() as connection:
+            connection.execute(statement)
+        return len(records)
 
 
 database = Database.get_instance()

@@ -61,10 +61,9 @@ def load():
     df.to_csv(OUTPUT_FILE, index=False)
     print("Fichier Gold enregistre.")
 
-    if load_to_database:
-        database.create_tables()
-        rows_loaded = database.load_gold_dataframe(df)
-        print(f"{rows_loaded} lignes Gold chargees dans PostgreSQL.")
+    database.create_tables()
+    rows_loaded = database.load_gold_dataframe(df)
+    print(f"{rows_loaded} lignes Gold chargees dans PostgreSQL.")
 
     return df
 
