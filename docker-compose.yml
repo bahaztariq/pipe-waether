@@ -47,6 +47,11 @@ services:
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "${AIRFLOW_ADMIN_USERNAME}:admin"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      AIRFLOW_ADMIN_USERNAME: "${AIRFLOW_ADMIN_USERNAME}"
+      AIRFLOW_ADMIN_PASSWORD: "${AIRFLOW_ADMIN_PASSWORD}"
+      PYTHONPATH: /opt/airflow/project
       PROJECT_DIR: /opt/airflow/project
       BRONZE_DIR: /opt/airflow/project/bronze
       CITIES_FILE: /opt/airflow/project/bronze/cities.csv
@@ -59,8 +64,7 @@ services:
       - ./plugins:/opt/airflow/plugins
       - .:/opt/airflow/project
     command: >
-      bash -c "airflow db migrate &&
-               (airflow users create --username ${AIRFLOW_ADMIN_USERNAME} --password ${AIRFLOW_ADMIN_PASSWORD} --firstname Admin --lastname User --role Admin --email ${AIRFLOW_ADMIN_EMAIL} || true)"
+      bash -c "python -c 'import json, os; json.dump({os.environ[\"AIRFLOW_ADMIN_USERNAME\"]: os.environ[\"AIRFLOW_ADMIN_PASSWORD\"]}, open(\"/opt/airflow/simple_auth_manager_passwords.json.generated\", \"w\"))' && exec airflow standalone"
   
 volumes:
   db_data:
